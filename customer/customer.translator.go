@@ -1,17 +1,17 @@
 package customer
 
 func ToContract(customer *Customer) *CustomerDTO {
-	customerDTO := new(CustomerDTO)
-	customerDTO.Id = customer.Id
-	customerDTO.FullName = customer.FullName
-	customerDTO.StreetAddress = customer.StreetAddress
-	return customerDTO
+	return &CustomerDTO{
+		Id:            customer.Id,
+		FullName:      customer.FullName,
+		StreetAddress: customer.StreetAddress,
+	}
 }
 
-func  ToEntity(customerDTO *CustomerDTO) *Customer {
-	customer := new(Customer)
-	customer.Id = customerDTO.Id
-	customer.FullName = customerDTO.FullName
-	customer.StreetAddress = customerDTO.StreetAddress
-	return customer
+func ToEntity(customerDTO *CustomerDTO) *Customer {
+	return &Customer{
+		Id:            customerDTO.Id,
+		FullName:      customerDTO.FullName,
+		StreetAddress: customerDTO.StreetAddress,
+	}
 }
