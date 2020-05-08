@@ -13,11 +13,11 @@ import (
 
 func TestAppController(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "AppController Suite")
+	RunSpecs(t, "Controller Suite")
 }
 
 // Ginkgo BDD tests
-var _ = Describe("AppController", func() {
+var _ = Describe("Controller", func() {
 
 	// Per-suite variables
 	var (
@@ -32,12 +32,12 @@ var _ = Describe("AppController", func() {
 	Describe("Creating the application controller", func() {
 		Context("with all of its dependencies provided", func() {
 			var (
-				controller AppController
+				controller Controller
 			)
 			BeforeEach(func() {
 				controller = NewAppController(router)
 			})
-			It("should result in a AppController that references the given dependencies", func() {
+			It("should result in a Controller that references the given dependencies", func() {
 				Expect(controller).ToNot(BeNil())
 			})
 			It("should map its routes", func() {

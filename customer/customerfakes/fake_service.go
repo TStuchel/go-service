@@ -2,11 +2,12 @@
 package customerfakes
 
 import (
-	"github.com/TStuchel/go-service/customer"
 	"sync"
+
+	"github.com/TStuchel/go-service/customer"
 )
 
-type FakeCustomerService struct {
+type FakeService struct {
 	GetCustomerStub        func(string) (*customer.Customer, error)
 	getCustomerMutex       sync.RWMutex
 	getCustomerArgsForCall []struct {
@@ -24,7 +25,7 @@ type FakeCustomerService struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeCustomerService) GetCustomer(arg1 string) (*customer.Customer, error) {
+func (fake *FakeService) GetCustomer(arg1 string) (*customer.Customer, error) {
 	fake.getCustomerMutex.Lock()
 	ret, specificReturn := fake.getCustomerReturnsOnCall[len(fake.getCustomerArgsForCall)]
 	fake.getCustomerArgsForCall = append(fake.getCustomerArgsForCall, struct {
@@ -42,26 +43,26 @@ func (fake *FakeCustomerService) GetCustomer(arg1 string) (*customer.Customer, e
 	return fakeReturns.result1, fakeReturns.result2
 }
 
-func (fake *FakeCustomerService) GetCustomerCallCount() int {
+func (fake *FakeService) GetCustomerCallCount() int {
 	fake.getCustomerMutex.RLock()
 	defer fake.getCustomerMutex.RUnlock()
 	return len(fake.getCustomerArgsForCall)
 }
 
-func (fake *FakeCustomerService) GetCustomerCalls(stub func(string) (*customer.Customer, error)) {
+func (fake *FakeService) GetCustomerCalls(stub func(string) (*customer.Customer, error)) {
 	fake.getCustomerMutex.Lock()
 	defer fake.getCustomerMutex.Unlock()
 	fake.GetCustomerStub = stub
 }
 
-func (fake *FakeCustomerService) GetCustomerArgsForCall(i int) string {
+func (fake *FakeService) GetCustomerArgsForCall(i int) string {
 	fake.getCustomerMutex.RLock()
 	defer fake.getCustomerMutex.RUnlock()
 	argsForCall := fake.getCustomerArgsForCall[i]
 	return argsForCall.arg1
 }
 
-func (fake *FakeCustomerService) GetCustomerReturns(result1 *customer.Customer, result2 error) {
+func (fake *FakeService) GetCustomerReturns(result1 *customer.Customer, result2 error) {
 	fake.getCustomerMutex.Lock()
 	defer fake.getCustomerMutex.Unlock()
 	fake.GetCustomerStub = nil
@@ -71,7 +72,7 @@ func (fake *FakeCustomerService) GetCustomerReturns(result1 *customer.Customer, 
 	}{result1, result2}
 }
 
-func (fake *FakeCustomerService) GetCustomerReturnsOnCall(i int, result1 *customer.Customer, result2 error) {
+func (fake *FakeService) GetCustomerReturnsOnCall(i int, result1 *customer.Customer, result2 error) {
 	fake.getCustomerMutex.Lock()
 	defer fake.getCustomerMutex.Unlock()
 	fake.GetCustomerStub = nil
@@ -87,7 +88,7 @@ func (fake *FakeCustomerService) GetCustomerReturnsOnCall(i int, result1 *custom
 	}{result1, result2}
 }
 
-func (fake *FakeCustomerService) Invocations() map[string][][]interface{} {
+func (fake *FakeService) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
 	fake.getCustomerMutex.RLock()
@@ -99,7 +100,7 @@ func (fake *FakeCustomerService) Invocations() map[string][][]interface{} {
 	return copiedInvocations
 }
 
-func (fake *FakeCustomerService) recordInvocation(key string, args []interface{}) {
+func (fake *FakeService) recordInvocation(key string, args []interface{}) {
 	fake.invocationsMutex.Lock()
 	defer fake.invocationsMutex.Unlock()
 	if fake.invocations == nil {
@@ -111,4 +112,4 @@ func (fake *FakeCustomerService) recordInvocation(key string, args []interface{}
 	fake.invocations[key] = append(fake.invocations[key], args)
 }
 
-var _ customer.CustomerService = new(FakeCustomerService)
+var _ customer.Service = new(FakeService)

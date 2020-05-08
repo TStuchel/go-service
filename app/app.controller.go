@@ -2,30 +2,31 @@ package app
 
 import (
 	"github.com/gorilla/mux"
+	"log"
 	"net/http"
 )
 
-// ------------------------------------------ Interfaces ------------------------------------------
+// ----------------------------------------------------- INTERFACE -----------------------------------------------------
 
-// AppController : Root controller interface
-type AppController interface {
+// Controller : Root controller interface
+type Controller interface {
 	GetHealth(http.ResponseWriter, *http.Request)
 }
 
-// --------------------------------------------------- Implementation --------------------------------------------------
+// -------------------------------------------------- IMPLEMENTATION ---------------------------------------------------
 
-// AppControllerImpl : Root application controller
-type AppControllerImpl struct {
+// controllerImpl : Root application controller
+type controllerImpl struct {
 	router *mux.Router
 }
 
-// ---------------------------------------------------- Constructor ----------------------------------------------------
+// --------------------------------------------------- CONSTRUCTORS ----------------------------------------------------
 
 // NewAppController : Create and return a new reservation controller with the given dependencies
-func NewAppController(router *mux.Router) AppController {
+func NewAppController(router *mux.Router) Controller {
 
 	// Create controller
-	controller := AppControllerImpl{
+	controller := controllerImpl{
 		router: router,
 	}
 
@@ -35,12 +36,15 @@ func NewAppController(router *mux.Router) AppController {
 	return controller
 }
 
-// ------------------------------------------------------ Methods ------------------------------------------------------
+// ------------------------------------------------------ METHODS ------------------------------------------------------
 
 // GetHealth : Returns the health of this service
-func (impl AppControllerImpl) GetHealth(w http.ResponseWriter, _ *http.Request) {
+func (controllerImpl) GetHealth(w http.ResponseWriter, _ *http.Request) {
 
 	// Build the HTTP response
 	w.Header().Set("Content-Type", "text/plain; charset=UTF-8")
-	_, _ = w.Write([]byte("Service available"))
+	var _, err = w.Write([]byte("Service available"))
+	if err != nil {
+		log.Print(err)
+	}
 }

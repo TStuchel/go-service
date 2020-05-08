@@ -3,32 +3,33 @@ package customer
 import (
 	"encoding/json"
 	"github.com/gorilla/mux"
+	"log"
 	"net/http"
 	"time"
 )
 
-// ------------------------------------------ Interfaces ------------------------------------------
+// ----------------------------------------------------- INTERFACE -----------------------------------------------------
 
-//go:generate counterfeiter . CustomerController
-type CustomerController interface {
+type Controller interface {
 	GetCustomer(http.ResponseWriter, *http.Request)
 }
 
-// --------------------------------------------------- Implementation --------------------------------------------------
+// -------------------------------------------------- IMPLEMENTATION ---------------------------------------------------
 
-type CustomerControllerImpl struct {
-	router             *mux.Router
-	customerService    CustomerService
+type controllerImpl struct {
+	router  *mux.Router
+	service Service
 }
 
-// ---------------------------------------------------- Constructor ----------------------------------------------------
+// --------------------------------------------------- CONSTRUCTORS ----------------------------------------------------
 
-func NewCustomerController(router *mux.Router, customerService CustomerService) CustomerController {
+// NewCustomerController creates and returns a Controller with its handlers registered with the given router.
+func NewCustomerController(router *mux.Router, service Service) Controller {
 
 	// Create controller
-	controller := CustomerControllerImpl{
-		router:             router,
-		customerService:    customerService,
+	controller := controllerImpl{
+		router:  router,
+		service: service,
 	}
 
 	// Register handlers
@@ -37,10 +38,10 @@ func NewCustomerController(router *mux.Router, customerService CustomerService) 
 	return controller
 }
 
-// ------------------------------------------------------ Methods ------------------------------------------------------
+// ------------------------------------------------------ METHODS ------------------------------------------------------
 
-// GetCustomer : Return a Customer JSON contract given the customer ID
-func (impl CustomerControllerImpl) GetCustomer(w http.ResponseWriter, r *http.Request) {
+// GetCustomer returns a Customer JSON contract given the customer ID
+func (impl controllerImpl) GetCustomer(w http.ResponseWriter, r *http.Request) {
 
 	// Read the URI path variables
 	vars := mux.Vars(r)
@@ -48,7 +49,7 @@ func (impl CustomerControllerImpl) GetCustomer(w http.ResponseWriter, r *http.Re
 
 	// Get the customer
 	startTime := time.Now()
-	customer, err := impl.customerService.GetCustomer(customerId) // TODO: Handle Error
+	customer, err := impl.service.GetCustomer(customerId) // TODO: Handle Error
 	elapsedTime := time.Since(startTime)
 
 	// Build the HTTP response
@@ -76,6 +77,6 @@ func (impl CustomerControllerImpl) GetCustomer(w http.ResponseWriter, r *http.Re
 	enc := json.NewEncoder(w)
 	err = enc.Encode(customerDTO)
 	if err != nil {
-		panic(err)
+		log.Print(err)
 	}
 }

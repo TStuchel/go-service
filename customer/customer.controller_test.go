@@ -19,29 +19,29 @@ import (
 
 func TestCustomerController(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "CustomerController Suite")
+	RunSpecs(t, "Controller Suite")
 }
 
 // Ginkgo BDD tests
-var _ = Describe("CustomerController", func() {
+var _ = Describe("Controller", func() {
 
 	// Per-suite variables
 	var (
 		router     *mux.Router
-		service    *customerfakes.FakeCustomerService
-		controller customer.CustomerController
+		service    *customerfakes.FakeService
+		controller customer.Controller
 	)
 
 	// Per-suite setup
 	BeforeEach(func() {
 		router = mux.NewRouter()
-		service = new(customerfakes.FakeCustomerService)
+		service = new(customerfakes.FakeService)
 		controller = customer.NewCustomerController(router, service)
 	})
 
 	// --
 	Describe("Creating a new customer controller", func() {
-		It("should result in a CustomerController that references the given dependencies", func() {
+		It("should result in a Controller that references the given dependencies", func() {
 			Expect(controller).ToNot(BeNil())
 		})
 		It("should map its routes", func() {

@@ -1,26 +1,27 @@
 package customer
 
-// ------------------------------------------ Interfaces ------------------------------------------
+// ----------------------------------------------------- INTERFACE -----------------------------------------------------
 
-//go:generate counterfeiter . CustomerService
-type CustomerService interface {
+//go:generate counterfeiter . Service
+type Service interface {
 	GetCustomer(string) (*Customer, error)
 }
 
-// --------------------------------------------------- Implementation --------------------------------------------------
+// -------------------------------------------------- IMPLEMENTATION ---------------------------------------------------
 
-type CustomerServiceImpl struct {
+type serviceImpl struct {
 }
 
-// ---------------------------------------------------- Constructor ----------------------------------------------------
+// --------------------------------------------------- CONSTRUCTORS ----------------------------------------------------
 
-func NewCustomerService() CustomerService {
-	return new(CustomerServiceImpl)
+// NewCustomerService creates and returns a new Service business service.
+func NewCustomerService() Service {
+	return new(serviceImpl)
 }
 
-// ------------------------------------------------------ Methods ------------------------------------------------------
+// ------------------------------------------------------ METHODS ------------------------------------------------------
 
-// GetCustomer : Return a Customer given a customer ID
-func (impl CustomerServiceImpl) GetCustomer(customerId string) (*Customer, error) {
+// GetCustomer returns a Customer given a customer ID
+func (impl serviceImpl) GetCustomer(customerId string) (*Customer, error) {
 	return &Customer{Id: customerId}, nil
 }
