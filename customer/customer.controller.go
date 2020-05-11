@@ -2,7 +2,10 @@ package customer
 
 import (
 	. "github.com/TStuchel/go-service/common"
+	. "github.com/TStuchel/go-service/logging"
 	"github.com/gorilla/mux"
+	"io/ioutil"
+	"log"
 	"net/http"
 	"time"
 )
@@ -32,7 +35,8 @@ func NewCustomerController(router *mux.Router, service Service) Controller {
 	}
 
 	// Register handlers
-	router.HandleFunc("/v1/customers/{id}", controller.GetCustomer).Methods("GET").Name("GetCustomer")
+	router.HandleFunc("/v1/customers/{id}", Logger(controller.GetCustomer)).Methods("GET").Name("GetCustomer")
+	router.HandleFunc("/v1/customers", Logger(controller.CreateCustomer)).Methods("POST").Name("CreateCustomer")
 
 	return controller
 }
@@ -72,3 +76,15 @@ func (impl controllerImpl) GetCustomer(w http.ResponseWriter, r *http.Request) {
 	// Good data, return JSON
 	HandleSuccess(w, http.StatusOK, customerDTO)
 }
+
+// CreateCustomer creates a new customer with the given data
+func (impl controllerImpl) CreateCustomer(w http.ResponseWriter, r *http.Request) {
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Fatal("Boom!")
+	}
+
+	log.Printf("Got Request : %s",string(body))
+}
+
