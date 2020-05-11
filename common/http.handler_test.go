@@ -23,7 +23,7 @@ var _ = Describe("Http Handlers", func() {
 		var (
 			err      error
 			w        MockHttpResponseWriter
-			errorDTO ErrorDTO
+			errorDTO *ErrorDTO
 		)
 
 		// GIVEN an (unauthorized) error
@@ -35,8 +35,8 @@ var _ = Describe("Http Handlers", func() {
 		// WHEN the error is handled
 		JustBeforeEach(func() {
 			HandleUnauthorizedError(&w, "/v1/token", err)
-			errorDTO = ErrorDTO{}
-			_ = json.Unmarshal(w.bytes, &errorDTO)
+			errorDTO = &ErrorDTO{}
+			_ = json.Unmarshal(w.bytes, errorDTO)
 		})
 		It("should contain the expected error data", func() {
 			Expect(errorDTO.StatusCode).To(Equal(http.StatusUnauthorized))
@@ -52,11 +52,15 @@ var _ = Describe("Http Handlers", func() {
 
 type MockHttpResponseWriter struct {
 	statusCode int
+	header     http.Header
 	bytes      []byte
 }
 
 func (impl *MockHttpResponseWriter) Header() http.Header {
-	panic("implement me")
+	if impl.header == nil {
+		impl.header = http.Header{}
+	}
+	return impl.header
 }
 
 func (impl *MockHttpResponseWriter) Write(bytes []byte) (int, error) {

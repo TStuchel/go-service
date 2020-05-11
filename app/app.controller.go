@@ -22,7 +22,7 @@ type controllerImpl struct {
 
 // --------------------------------------------------- CONSTRUCTORS ----------------------------------------------------
 
-// NewAppController : Create and return a new reservation controller with the given dependencies
+// NewAppController : Creates and returns a new app controller
 func NewAppController(router *mux.Router) Controller {
 
 	// Create controller

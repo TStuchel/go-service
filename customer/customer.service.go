@@ -22,6 +22,6 @@ func NewCustomerService() Service {
 // ------------------------------------------------------ METHODS ------------------------------------------------------
 
 // GetCustomer returns a Customer given a customer ID
-func (impl serviceImpl) GetCustomer(customerId string) (*Customer, error) {
+func (serviceImpl) GetCustomer(customerId string) (*Customer, error) {
 	return &Customer{Id: customerId}, nil
 }
