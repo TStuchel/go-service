@@ -11,6 +11,8 @@ import (
 	"testing"
 )
 
+// ------------------------------------------------ TEST SPECIFICATIONS ------------------------------------------------
+
 // GIVEN an HTTP request containing (or not containing) valid Basic auth credentials
 // WHEN the basic authentication credentials are extracted
 // THEN the username and password should be extracted, or an error returned

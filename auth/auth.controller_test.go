@@ -8,6 +8,7 @@ import (
 	"github.com/TStuchel/go-service/auth"
 	"github.com/TStuchel/go-service/auth/authfakes"
 	"github.com/TStuchel/go-service/common"
+	. "github.com/TStuchel/go-service/testutils"
 	"github.com/gorilla/mux"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -16,7 +17,7 @@ import (
 	"testing"
 )
 
-// --------------------------------------------------- Test Methods ----------------------------------------------------
+// ------------------------------------------------ TEST SPECIFICATIONS ------------------------------------------------
 
 func TestAuthController(t *testing.T) {
 	RegisterFailHandler(Fail)
@@ -58,7 +59,7 @@ var _ = Describe("Controller", func() {
 		)
 		BeforeEach(func() {
 			// GIVEN valid credentials
-			service.LoginReturns("SOMERANDOMTOKEN", nil)
+			service.LoginReturns(RandomString(12), nil)
 
 			// WHEN the customer API endpoint is called
 			req, _ = http.NewRequest("GET", "/v1/token", nil)

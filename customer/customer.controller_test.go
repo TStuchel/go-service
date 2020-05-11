@@ -6,6 +6,7 @@ import (
 	"github.com/TStuchel/go-service/common"
 	"github.com/TStuchel/go-service/customer"
 	"github.com/TStuchel/go-service/customer/customerfakes"
+	"github.com/TStuchel/go-service/testutils"
 	"github.com/gorilla/mux"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -15,7 +16,7 @@ import (
 	"testing"
 )
 
-// --------------------------------------------------- Test Methods ----------------------------------------------------
+// ------------------------------------------------ TEST SPECIFICATIONS ------------------------------------------------
 
 func TestCustomerController(t *testing.T) {
 	RegisterFailHandler(Fail)
@@ -58,9 +59,10 @@ var _ = Describe("Controller", func() {
 		BeforeEach(func() {
 			// GIVEN a customer with a particular ID is in the system
 			service.GetCustomerReturns(new(customer.Customer), nil)
+			customerId := testutils.RandomInt(0, 99999)
 
 			// WHEN the customer API endpoint is called
-			req, _ = http.NewRequest("GET", "/v1/customers/1234", nil)
+			req, _ = http.NewRequest("GET", fmt.Sprintf("/v1/customers/%d", customerId), nil)
 			w = httptest.NewRecorder()
 			router.ServeHTTP(w, req)
 		})
@@ -81,9 +83,10 @@ var _ = Describe("Controller", func() {
 		BeforeEach(func() {
 			// GIVEN an ID of a customer that is not in the system
 			service.GetCustomerReturns(nil, nil)
+			customerId := testutils.RandomInt(0, 99999)
 
 			// WHEN the customer API endpoint is called
-			req, _ = http.NewRequest("GET", "/v1/customers/1234", nil)
+			req, _ = http.NewRequest("GET", fmt.Sprintf("/v1/customers/%d", customerId), nil)
 			w = httptest.NewRecorder()
 			router.ServeHTTP(w, req)
 		})
