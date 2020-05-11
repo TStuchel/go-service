@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"errors"
 	"github.com/dgrijalva/jwt-go"
 	"os"
 )
@@ -34,6 +35,9 @@ func NewAuthService() Service {
 func (serviceImpl) Login(username string, password string) (token string, err error) {
 
 	// TODO: Authenticate User
+	if username != "admin" || password != "admin" {
+		return "", errors.New("invalid credentials")
+	}
 
 	// Return the token
 	return generateToken(username)

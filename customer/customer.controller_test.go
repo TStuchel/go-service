@@ -13,6 +13,7 @@ import (
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 )
 
@@ -20,11 +21,11 @@ import (
 
 func TestCustomerController(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Controller Suite")
+	RunSpecs(t, "Customer Controller Suite")
 }
 
 // Ginkgo BDD tests
-var _ = Describe("Controller", func() {
+var _ = Describe("Customer Controller", func() {
 
 	// Per-suite variables
 	var (
@@ -52,14 +53,14 @@ var _ = Describe("Controller", func() {
 
 	// --
 	Describe("Find a customer by its ID", func() {
+		customerId := testutils.RandomInt(0, 99999)
 		var (
 			req *http.Request
 			w   *httptest.ResponseRecorder
 		)
 		BeforeEach(func() {
 			// GIVEN a customer with a particular ID is in the system
-			service.GetCustomerReturns(new(customer.Customer), nil)
-			customerId := testutils.RandomInt(0, 99999)
+			service.GetCustomerReturns(&customer.Customer{Id: strconv.Itoa(customerId)}, nil)
 
 			// WHEN the customer API endpoint is called
 			req, _ = http.NewRequest("GET", fmt.Sprintf("/v1/customers/%d", customerId), nil)
@@ -70,7 +71,9 @@ var _ = Describe("Controller", func() {
 			Expect(w.Code).To(Equal(http.StatusOK))
 		})
 		It("should contain the Customer in the response", func() {
-			Expect(w.Body.String()).ToNot(BeNil())
+			customerDTO := new(customer.CustomerDTO)
+			_ = json.Unmarshal(w.Body.Bytes(), customerDTO)
+			Expect(customerDTO.Id).To(Equal(strconv.Itoa(customerId)))
 		})
 	})
 

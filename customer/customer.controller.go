@@ -1,9 +1,8 @@
 package customer
 
 import (
-	"encoding/json"
+	. "github.com/TStuchel/go-service/common"
 	"github.com/gorilla/mux"
-	"log"
 	"net/http"
 	"time"
 )
@@ -53,20 +52,17 @@ func (impl controllerImpl) GetCustomer(w http.ResponseWriter, r *http.Request) {
 	elapsedTime := time.Since(startTime)
 
 	// Build the HTTP response
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.Header().Set("x-elapsed", elapsedTime.String())
 
 	// Error
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		enc := json.NewEncoder(w)
-		err = enc.Encode(err)
+		HandleBadRequest(w, err)
 		return
 	}
 
 	// Missing data
 	if customer == nil {
-		w.WriteHeader(http.StatusNotFound)
+		HandleNotFound(w)
 		return
 	}
 
@@ -74,9 +70,5 @@ func (impl controllerImpl) GetCustomer(w http.ResponseWriter, r *http.Request) {
 	customerDTO := ToContract(customer)
 
 	// Good data, return JSON
-	enc := json.NewEncoder(w)
-	err = enc.Encode(customerDTO)
-	if err != nil {
-		log.Print(err)
-	}
+	HandleSuccess(w, http.StatusOK, customerDTO)
 }

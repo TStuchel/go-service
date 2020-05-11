@@ -2,10 +2,7 @@ package auth
 
 import (
 	"encoding/base64"
-	"encoding/json"
 	"errors"
-	"github.com/TStuchel/go-service/common"
-	"log"
 	"net/http"
 	"strings"
 )
@@ -45,19 +42,4 @@ func ExtractBasicAuthCredentials(r *http.Request) (username string, password str
 
 	// Username / Password
 	return credParts[0], credParts[1], nil
-}
-
-// HandleUnauthorizedError writes a 401 Unauthorized error to the given writer.
-func HandleUnauthorizedError(w http.ResponseWriter, err error) {
-	w.WriteHeader(http.StatusUnauthorized)
-	enc := json.NewEncoder(w)
-	err = enc.Encode(common.ErrorDTO{
-		Url:        "/v1/token",
-		StatusCode: http.StatusUnauthorized,
-		Message:    err.Error(),
-		Type:       "UnauthorizedException",
-	})
-	if err != nil {
-		log.Print(err)
-	}
 }

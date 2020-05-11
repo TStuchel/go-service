@@ -21,11 +21,11 @@ import (
 
 func TestAuthController(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Controller Suite")
+	RunSpecs(t, "Auth Controller Suite")
 }
 
 // Ginkgo BDD tests
-var _ = Describe("Controller", func() {
+var _ = Describe("Auth Controller", func() {
 
 	// Per-suite variables
 	var (
@@ -67,6 +67,9 @@ var _ = Describe("Controller", func() {
 			w = httptest.NewRecorder()
 			router.ServeHTTP(w, req)
 		})
+		It("should call the login service", func() {
+			Expect(service.LoginCallCount()).To(Equal(1))
+		})
 		It("should return an HTTP status code of 200-OK", func() {
 			Expect(w.Code).To(Equal(http.StatusOK))
 		})
@@ -78,15 +81,13 @@ var _ = Describe("Controller", func() {
 	})
 
 	// --
-	Describe("Return an error given invalid credentials", func() {
+	Describe("Return an error given missing credentials", func() {
 		var (
 			req *http.Request
 			w   *httptest.ResponseRecorder
 		)
 		BeforeEach(func() {
-			// GIVEN invalid credentials
-			service.LoginReturns("", errors.New("invalid credentials"))
-
+			// GIVEN missing credentials
 			// WHEN the customer API endpoint is called
 			req, _ = http.NewRequest("GET", "/v1/token", nil)
 			w = httptest.NewRecorder()
@@ -104,4 +105,34 @@ var _ = Describe("Controller", func() {
 			Expect(response.Type).To(Equal("UnauthorizedException"))
 		})
 	})
+
+	// --
+	Describe("Return an error given invalid credentials", func() {
+		var (
+			req *http.Request
+			w   *httptest.ResponseRecorder
+		)
+		BeforeEach(func() {
+			// GIVEN invalid credentials
+			service.LoginReturns("", errors.New("invalid credentials"))
+
+			// WHEN the customer API endpoint is called
+			req, _ = http.NewRequest("GET", "/v1/token", nil)
+			req.Header.Add("Authorization", fmt.Sprintf("Basic %s", base64.StdEncoding.EncodeToString([]byte("invalid:invalid"))))
+			w = httptest.NewRecorder()
+			router.ServeHTTP(w, req)
+		})
+		It("should return an HTTP status code of 401-Unauthorized", func() {
+			Expect(w.Code).To(Equal(http.StatusUnauthorized))
+		})
+		It("should should contain the expected error", func() {
+			response := common.ErrorDTO{}
+			_ = json.Unmarshal(w.Body.Bytes(), &response)
+			Expect(response.Url).To(Equal("/v1/token"))
+			Expect(response.StatusCode).To(Equal(http.StatusUnauthorized))
+			Expect(response.Message).To(Equal("invalid credentials"))
+			Expect(response.Type).To(Equal("UnauthorizedException"))
+		})
+	})
+
 })

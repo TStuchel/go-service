@@ -1,9 +1,8 @@
 package auth
 
 import (
-	"encoding/json"
+	. "github.com/TStuchel/go-service/common"
 	"github.com/gorilla/mux"
-	"log"
 	"net/http"
 )
 
@@ -46,27 +45,20 @@ func NewAuthController(router *mux.Router, service Service) Controller {
 // GetToken returns a JWT token in the response given valid Basic auth credentials in the request.
 func (impl controllerImpl) GetToken(w http.ResponseWriter, r *http.Request) {
 
-	// Always respond with JSON
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-
 	// Get the Basic Auth credentials
 	username, password, authErr := ExtractBasicAuthCredentials(r)
 	if authErr != nil {
-		HandleUnauthorizedError(w, authErr)
+		HandleUnauthorizedError(w, "/v1/token", authErr)
 		return
 	}
 
 	// Get the token
 	var token, err = impl.service.Login(username, password)
 	if err != nil {
-		HandleUnauthorizedError(w, err)
+		HandleUnauthorizedError(w, "/v1/token", err)
 		return
 	}
 
 	// Return token
-	enc := json.NewEncoder(w)
-	err = enc.Encode(TokenResponse{Token: token})
-	if err != nil {
-		log.Print(err)
-	}
+	HandleSuccess(w, http.StatusOK, TokenResponse{Token: token})
 }
