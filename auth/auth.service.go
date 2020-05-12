@@ -2,16 +2,13 @@ package auth
 
 import (
 	"errors"
+	jwt2 "github.com/TStuchel/go-service/auth/jwt"
 	"github.com/dgrijalva/jwt-go"
 	"os"
+	"time"
 )
 
 // ---------------------------------------------------- INTERFACES -----------------------------------------------------
-
-type authClaims struct {
-	Username string `json:"username"`
-	jwt.StandardClaims
-}
 
 //go:generate counterfeiter . Service
 type Service interface {
@@ -45,10 +42,10 @@ func (serviceImpl) Login(username string, password string) (token string, err er
 
 func generateToken(username string) (token string, err error) {
 	// Create the claims
-	claims := authClaims{
+	claims := jwt2.Claims{
 		Username: username,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: 15000,
+			ExpiresAt: time.Now().Unix() + 3600, // 1 hour
 			Issuer:    "www.daugherty.com",
 		},
 	}

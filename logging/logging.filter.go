@@ -3,8 +3,8 @@ package logging
 import (
 	"bytes"
 	"fmt"
+	"github.com/TStuchel/go-service/testutils"
 	"github.com/satori/go.uuid"
-	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -13,18 +13,23 @@ import (
 	"strings"
 )
 
-// ------------------------------------------------- PUBLIC FUNCTIONS --------------------------------------------------
+// -------------------------------------------------- IMPLEMENTATION ---------------------------------------------------
 
-// Wraps the given handler function and logs the request prior to calling the method. Then, logs the response after
-// the method has completed. Each request/response is given its own "request ID" in the logs.
-func Logger(handlerFunc http.HandlerFunc) http.HandlerFunc {
+// This filter logs the incoming HTTP request body and then subsequently logs the outgoing response HTTP body. The
+// request and response logs are tagged with a "request ID" to correlate the two logs.
+type Filter struct {
+}
+
+// ------------------------------------------------------ METHODS ------------------------------------------------------
+
+func (Filter) Handle(handlerFunc http.HandlerFunc) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 
 		// Request ID
 		requestId := strings.Replace(uuid.NewV4().String(), "-", "", -1)
 
 		// Read the request (including the full body)
-		_, err := httputil.DumpRequest(request, true)
+		_, err := httputil.DumpRequest(request, false)
 		if err != nil {
 			http.Error(writer, fmt.Sprint(err), http.StatusInternalServerError)
 			return
@@ -39,7 +44,7 @@ func Logger(handlerFunc http.HandlerFunc) http.HandlerFunc {
 			// Hijack the incoming stream to read all of the request bytes, then add them back onto the request so that
 			// further filters can read the body
 			body, _ := ioutil.ReadAll(request.Body)
-			request.Body = &ClosingBuffer{bytes.NewReader(body)}
+			request.Body = &testutils.MockReadCloser{Reader: bytes.NewReader(body)}
 			requestBody = parseBody(string(body))
 		}
 
@@ -78,11 +83,3 @@ func parseBody(body string) string {
 }
 
 // ------------------------------------------------------ HELPERS ------------------------------------------------------
-
-type ClosingBuffer struct {
-	io.Reader
-}
-
-func (cb *ClosingBuffer) Close() (err error) {
-	return
-}

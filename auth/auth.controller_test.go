@@ -38,7 +38,7 @@ var _ = Describe("Auth Controller", func() {
 	BeforeEach(func() {
 		router = mux.NewRouter()
 		service = new(authfakes.FakeService)
-		controller = auth.NewAuthController(router, service)
+		controller = auth.NewAuthController(router, nil, service)
 	})
 
 	// --

@@ -7,6 +7,8 @@ import (
 	"strings"
 )
 
+// ------------------------------------------------- PUBLIC FUNCTIONS --------------------------------------------------
+
 // ExtractBasicAuthCredentials extracts the username and password from the Basic auth header.
 func ExtractBasicAuthCredentials(r *http.Request) (username string, password string, err error) {
 

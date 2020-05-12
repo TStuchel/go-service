@@ -1,10 +1,13 @@
-package common
+package http
 
 import (
 	"encoding/json"
+	"github.com/TStuchel/go-service/common"
 	"log"
 	"net/http"
 )
+
+// ------------------------------------------------- PUBLIC FUNCTIONS --------------------------------------------------
 
 // HandleSuccess writes to the given ResponseWriter with the given HTTP status code and writes the given structure to it
 // as a JSON string.
@@ -61,7 +64,7 @@ func HandleUnauthorizedError(w http.ResponseWriter, url string, err error) {
 
 	// Write the DTO
 	enc := json.NewEncoder(w)
-	err = enc.Encode(ErrorDTO{
+	err = enc.Encode(common.ErrorDTO{
 		Url:        url,
 		StatusCode: http.StatusUnauthorized,
 		Message:    err.Error(),

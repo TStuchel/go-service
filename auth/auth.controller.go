@@ -1,7 +1,7 @@
 package auth
 
 import (
-	. "github.com/TStuchel/go-service/common"
+	http2 "github.com/TStuchel/go-service/http"
 	"github.com/gorilla/mux"
 	"net/http"
 )
@@ -26,7 +26,7 @@ type TokenResponse struct {
 // --------------------------------------------------- CONSTRUCTORS ----------------------------------------------------
 
 // NewAuthController creates and returns an Controller with its handlers registered with the given router.
-func NewAuthController(router *mux.Router, service Service) Controller {
+func NewAuthController(router *mux.Router, filters []http2.Filter, service Service) Controller {
 
 	// Create controller
 	controller := controllerImpl{
@@ -35,7 +35,7 @@ func NewAuthController(router *mux.Router, service Service) Controller {
 	}
 
 	// Register handlers
-	router.HandleFunc("/v1/token", controller.GetToken).Methods("GET").Name("GetToken")
+	router.HandleFunc("/v1/token", http2.BuildFilterChain(filters, controller.GetToken)).Methods("GET").Name("GetToken")
 
 	return controller
 }
@@ -48,17 +48,17 @@ func (impl controllerImpl) GetToken(w http.ResponseWriter, r *http.Request) {
 	// Get the Basic Auth credentials
 	username, password, authErr := ExtractBasicAuthCredentials(r)
 	if authErr != nil {
-		HandleUnauthorizedError(w, "/v1/token", authErr)
+		http2.HandleUnauthorizedError(w, r.URL.Path, authErr)
 		return
 	}
 
 	// Get the token
 	var token, err = impl.service.Login(username, password)
 	if err != nil {
-		HandleUnauthorizedError(w, "/v1/token", err)
+		http2.HandleUnauthorizedError(w, r.URL.Path, err)
 		return
 	}
 
 	// Return token
-	HandleSuccess(w, http.StatusOK, TokenResponse{Token: token})
+	http2.HandleSuccess(w, http.StatusOK, TokenResponse{Token: token})
 }

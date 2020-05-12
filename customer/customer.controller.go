@@ -1,13 +1,11 @@
 package customer
 
 import (
-	. "github.com/TStuchel/go-service/common"
-	. "github.com/TStuchel/go-service/logging"
+	http2 "github.com/TStuchel/go-service/http"
 	"github.com/gorilla/mux"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"time"
 )
 
 // ----------------------------------------------------- INTERFACE -----------------------------------------------------
@@ -26,7 +24,7 @@ type controllerImpl struct {
 // --------------------------------------------------- CONSTRUCTORS ----------------------------------------------------
 
 // NewCustomerController creates and returns a Controller with its handlers registered with the given router.
-func NewCustomerController(router *mux.Router, service Service) Controller {
+func NewCustomerController(router *mux.Router, filters []http2.Filter, service Service) Controller {
 
 	// Create controller
 	controller := controllerImpl{
@@ -35,8 +33,8 @@ func NewCustomerController(router *mux.Router, service Service) Controller {
 	}
 
 	// Register handlers
-	router.HandleFunc("/v1/customers/{id}", Logger(controller.GetCustomer)).Methods("GET").Name("GetCustomer")
-	router.HandleFunc("/v1/customers", Logger(controller.CreateCustomer)).Methods("POST").Name("CreateCustomer")
+	router.HandleFunc("/v1/customers/{id}", http2.BuildFilterChain(filters, controller.GetCustomer)).Methods("GET").Name("GetCustomer")
+	router.HandleFunc("/v1/customers", http2.BuildFilterChain(filters, controller.CreateCustomer)).Methods("POST").Name("CreateCustomer")
 
 	return controller
 }
@@ -51,22 +49,17 @@ func (impl controllerImpl) GetCustomer(w http.ResponseWriter, r *http.Request) {
 	customerId := vars["id"]
 
 	// Get the customer
-	startTime := time.Now()
 	customer, err := impl.service.GetCustomer(customerId) // TODO: Handle Error
-	elapsedTime := time.Since(startTime)
-
-	// Build the HTTP response
-	w.Header().Set("x-elapsed", elapsedTime.String())
 
 	// Error
 	if err != nil {
-		HandleBadRequest(w, err)
+		http2.HandleBadRequest(w, err)
 		return
 	}
 
 	// Missing data
 	if customer == nil {
-		HandleNotFound(w)
+		http2.HandleNotFound(w)
 		return
 	}
 
@@ -74,7 +67,7 @@ func (impl controllerImpl) GetCustomer(w http.ResponseWriter, r *http.Request) {
 	customerDTO := ToContract(customer)
 
 	// Good data, return JSON
-	HandleSuccess(w, http.StatusOK, customerDTO)
+	http2.HandleSuccess(w, http.StatusOK, customerDTO)
 }
 
 // CreateCustomer creates a new customer with the given data
@@ -85,6 +78,5 @@ func (impl controllerImpl) CreateCustomer(w http.ResponseWriter, r *http.Request
 		log.Fatal("Boom!")
 	}
 
-	log.Printf("Got Request : %s",string(body))
+	log.Printf("Got Request : %s", string(body))
 }
-

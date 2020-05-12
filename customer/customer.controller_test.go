@@ -38,7 +38,7 @@ var _ = Describe("Customer Controller", func() {
 	BeforeEach(func() {
 		router = mux.NewRouter()
 		service = new(customerfakes.FakeService)
-		controller = customer.NewCustomerController(router, service)
+		controller = customer.NewCustomerController(router, nil, service)
 	})
 
 	// --

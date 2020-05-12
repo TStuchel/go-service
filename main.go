@@ -6,7 +6,10 @@ import (
 	"fmt"
 	"github.com/TStuchel/go-service/app"
 	"github.com/TStuchel/go-service/auth"
+	"github.com/TStuchel/go-service/auth/jwt"
 	"github.com/TStuchel/go-service/customer"
+	http2 "github.com/TStuchel/go-service/http"
+	"github.com/TStuchel/go-service/logging"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -26,18 +29,30 @@ func main() {
 
 	// Initialize
 	log.Printf("Server starting...")
+	router := mux.NewRouter()
+
+	// Basic filters
+	baseFilters := []http2.Filter{
+		new(http2.PerformanceFilter),
+	}
+
+	// Filters for controllers that are JWT
+	jwtFilters := []http2.Filter{
+		new(http2.PerformanceFilter),
+		new(logging.Filter),
+		new(jwt.Filter),
+	}
 
 	// Initialize modules
-	router := mux.NewRouter()
-	app.NewAppController(router)
+	app.NewAppController(router, baseFilters)
 
 	// Auth
 	authService := auth.NewAuthService()
-	auth.NewAuthController(router, authService)
+	auth.NewAuthController(router, baseFilters, authService)
 
 	// Customers
 	customerService := customer.NewCustomerService()
-	customer.NewCustomerController(router, customerService)
+	customer.NewCustomerController(router, jwtFilters, customerService)
 
 	// Create the web server
 	srv := &http.Server{

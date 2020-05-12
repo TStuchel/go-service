@@ -35,7 +35,7 @@ var _ = Describe("Controller", func() {
 				controller Controller
 			)
 			BeforeEach(func() {
-				controller = NewAppController(router)
+				controller = NewAppController(router, nil)
 			})
 			It("should result in a Controller that references the given dependencies", func() {
 				Expect(controller).ToNot(BeNil())
@@ -52,7 +52,7 @@ var _ = Describe("Controller", func() {
 			w   *httptest.ResponseRecorder
 		)
 		BeforeEach(func() {
-			NewAppController(router)
+			NewAppController(router, nil)
 		})
 		Context("with a GET request", func() {
 			BeforeEach(func() {

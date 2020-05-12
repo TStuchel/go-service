@@ -68,5 +68,5 @@ func RandomString(length int) string {
 
 // Generate a random integer between the given values (inclusive)
 func RandomInt(min int, max int) int {
-	return seed.Intn(max - min) + min
+	return seed.Intn(max-min) + min
 }

@@ -1,8 +1,10 @@
-package common
+package http
 
 import (
 	"encoding/json"
 	"errors"
+	"github.com/TStuchel/go-service/common"
+	"github.com/TStuchel/go-service/testutils"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"net/http"
@@ -22,21 +24,21 @@ var _ = Describe("Http Handlers", func() {
 	Context("HandleUnauthorizedError", func() {
 		var (
 			err      error
-			w        MockHttpResponseWriter
-			errorDTO *ErrorDTO
+			w        testutils.MockHttpResponseWriter
+			errorDTO *common.ErrorDTO
 		)
 
 		// GIVEN an (unauthorized) error
 		BeforeEach(func() {
 			err = errors.New("invalid credentials")
-			w = MockHttpResponseWriter{}
+			w = testutils.MockHttpResponseWriter{}
 		})
 
 		// WHEN the error is handled
 		JustBeforeEach(func() {
 			HandleUnauthorizedError(&w, "/v1/token", err)
-			errorDTO = &ErrorDTO{}
-			_ = json.Unmarshal(w.bytes, errorDTO)
+			errorDTO = &common.ErrorDTO{}
+			_ = json.Unmarshal(w.Bytes, errorDTO)
 		})
 		It("should contain the expected error data", func() {
 			Expect(errorDTO.StatusCode).To(Equal(http.StatusUnauthorized))
@@ -47,27 +49,3 @@ var _ = Describe("Http Handlers", func() {
 
 	})
 })
-
-// ------------------------------------------------------ HELPER -------------------------------------------------------
-
-type MockHttpResponseWriter struct {
-	statusCode int
-	header     http.Header
-	bytes      []byte
-}
-
-func (impl *MockHttpResponseWriter) Header() http.Header {
-	if impl.header == nil {
-		impl.header = http.Header{}
-	}
-	return impl.header
-}
-
-func (impl *MockHttpResponseWriter) Write(bytes []byte) (int, error) {
-	impl.bytes = bytes
-	return 0, nil
-}
-
-func (impl *MockHttpResponseWriter) WriteHeader(statusCode int) {
-	impl.statusCode = statusCode
-}
