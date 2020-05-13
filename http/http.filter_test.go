@@ -7,6 +7,8 @@ import (
 	"testing"
 )
 
+// ------------------------------------------------ TEST SPECIFICATIONS ------------------------------------------------
+
 func TestHttpFilter(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "Http Filters Suite")

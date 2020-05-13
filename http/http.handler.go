@@ -18,17 +18,18 @@ func HandleSuccess(w http.ResponseWriter, httpStatus int, dto interface{}) {
 	w.WriteHeader(httpStatus)
 
 	// Write the DTO
-	enc := json.NewEncoder(w)
-	err := enc.Encode(dto)
+	if dto != nil {
+		enc := json.NewEncoder(w)
+		err := enc.Encode(dto)
 
-	// Very bad
-	if err != nil {
-		log.Print(err)
+		// Very bad
+		if err != nil {
+			log.Print(err)
+		}
 	}
 }
 
-// HandleBadRequest writes to the given ResponseWriter with an HTTP status of NOT_FOUND and writes the given error
-// as a JSON string.
+// HandleNotFound writes to the given ResponseWriter with an HTTP status of NOT_FOUND.
 func HandleNotFound(w http.ResponseWriter) {
 
 	// Respond with JSON
@@ -45,12 +46,14 @@ func HandleBadRequest(w http.ResponseWriter, err error) {
 	w.WriteHeader(http.StatusBadRequest)
 
 	// Write the DTO
-	enc := json.NewEncoder(w)
-	err = enc.Encode(err)
-
-	// Very bad
 	if err != nil {
-		log.Print(err)
+		enc := json.NewEncoder(w)
+		err = enc.Encode(err)
+
+		// Very bad
+		if err != nil {
+			log.Print(err)
+		}
 	}
 }
 
