@@ -13,16 +13,11 @@ import (
 	"strings"
 )
 
-// -------------------------------------------------- IMPLEMENTATION ---------------------------------------------------
+// ------------------------------------------------- PUBLIC FUNCTIONS --------------------------------------------------
 
 // This filter logs the incoming HTTP request body and then subsequently logs the outgoing response HTTP body. The
 // request and response logs are tagged with a "request ID" to correlate the two logs.
-type Filter struct {
-}
-
-// ------------------------------------------------------ METHODS ------------------------------------------------------
-
-func (Filter) Handle(handlerFunc http.HandlerFunc) http.HandlerFunc {
+func Filter(handlerFunc http.HandlerFunc) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 
 		// Request ID

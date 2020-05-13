@@ -46,8 +46,7 @@ var _ = Describe("Logging Filter", func() {
 
 		// WHEN the HTTP request is filtered
 		JustBeforeEach(func() {
-			filter := Filter{}
-			filteredHandler := filter.Handle(handler)
+			filteredHandler := Filter(handler)
 			filteredHandler(writer, request)
 		})
 

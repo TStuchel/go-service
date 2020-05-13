@@ -6,15 +6,10 @@ import (
 	"time"
 )
 
-// -------------------------------------------------- IMPLEMENTATION ---------------------------------------------------
+// ------------------------------------------------- PUBLIC FUNCTIONS --------------------------------------------------
 
 // PerformanceFilter is an HTTP filter to stopwatch the elapsed time that a service request takes to fully execute.
-type PerformanceFilter struct {
-}
-
-// ------------------------------------------------------ METHODS ------------------------------------------------------
-
-func (PerformanceFilter) Handle(handlerFunc http.HandlerFunc) http.HandlerFunc {
+func PerformanceFilter(handlerFunc http.HandlerFunc) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 
 		// Mark the beginning of the request

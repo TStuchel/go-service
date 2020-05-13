@@ -33,14 +33,14 @@ func main() {
 
 	// Basic filters
 	baseFilters := []http2.Filter{
-		new(http2.PerformanceFilter),
+		http2.PerformanceFilter,
 	}
 
 	// Filters for controllers that are JWT
 	jwtFilters := []http2.Filter{
-		new(http2.PerformanceFilter),
-		new(logging.Filter),
-		new(jwt.Filter),
+		http2.PerformanceFilter,
+		logging.Filter,
+		jwt.Filter,
 	}
 
 	// Initialize modules
