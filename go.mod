@@ -8,4 +8,5 @@ require (
 	github.com/onsi/ginkgo v1.12.0
 	github.com/onsi/gomega v1.10.0
 	github.com/satori/go.uuid v1.2.0
+	go.mongodb.org/mongo-driver v1.3.3
 )

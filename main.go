@@ -11,6 +11,8 @@ import (
 	http2 "github.com/TStuchel/go-service/http"
 	"github.com/TStuchel/go-service/logging"
 	"github.com/gorilla/mux"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 	"net/http"
 	"os"
@@ -22,6 +24,8 @@ import (
 func setEnvironment() {
 	_ = os.Setenv("APP_PORT", ":8081")
 	_ = os.Setenv("JWT_SECRET", "SuperSecretTokenToSignJWT") // TODO: Injected into environment
+	_ = os.Setenv("DB_URI", "mongodb://localhost:27017")
+	_ = os.Setenv("DB_NAME", "go-service")
 }
 
 func main() {
@@ -30,6 +34,9 @@ func main() {
 	// Initialize
 	log.Printf("Server starting...")
 	router := mux.NewRouter()
+
+	// Connect to the database
+	db := NewMongoDB()
 
 	// Basic filters
 	baseFilters := []http2.Filter{
@@ -51,7 +58,8 @@ func main() {
 	auth.NewAuthController(router, baseFilters, authService)
 
 	// Customers
-	customerService := customer.NewCustomerService()
+	customerRepository := customer.NewCustomerRepository(db)
+	customerService := customer.NewCustomerService(customerRepository)
 	customer.NewCustomerController(router, jwtFilters, customerService)
 
 	// Create the web server
@@ -88,4 +96,24 @@ func main() {
 	_ = srv.Shutdown(ctx)
 	log.Println("Shutting down")
 	os.Exit(0)
+}
+
+// NewMongoDB connects to and returns a connection to the database
+func NewMongoDB() *mongo.Database {
+
+	// Initialize database
+	clientOptions := options.Client().ApplyURI(os.Getenv("DB_URI"))
+	client, err := mongo.Connect(context.TODO(), clientOptions)
+	if err != nil {
+		log.Fatalf("Unable to open database connection at [%s]. Error: %s", os.Getenv("DB_URI"), err)
+	}
+
+	// Check the connection
+	err = client.Ping(context.TODO(), nil)
+	if err != nil {
+		log.Fatalf("Unable to ping database connection at [%s]. Error: %s", os.Getenv("DB_URI"), err)
+	}
+
+	// Return the database reference
+	return client.Database(os.Getenv("DB_NAME"))
 }

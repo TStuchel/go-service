@@ -60,7 +60,7 @@ var _ = Describe("Customer Controller", func() {
 		)
 		BeforeEach(func() {
 			// GIVEN a customer with a particular ID is in the system
-			service.GetCustomerReturns(&customer.Customer{Id: strconv.Itoa(customerId)}, nil)
+			service.GetCustomerReturns(&customer.Customer{ID: strconv.Itoa(customerId)}, nil)
 
 			// WHEN the customer API endpoint is called
 			req, _ = http.NewRequest("GET", fmt.Sprintf("/v1/customers/%d", customerId), nil)

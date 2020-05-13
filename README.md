@@ -19,9 +19,13 @@ This is because Go finds dependencies first by looking in the GOPATH, then by lo
 
 More explanation can be found here, including information about the GOROOT, which is the location of the Go SDK (compiler and standard libraries):  https://www.jetbrains.com/help/go/configuring-goroot-and-gopath.html
 
-
 ## Debugging
 This project was built using [JetBrains's GoLand IDE](https://www.jetbrains.com/go/). When debugging in GoLand on macOS, you must install the XCode debugger:
 ```shell script
  xcode-select --install
+```
+## Unit Tests
+Run (all) unit tests from the command line via:
+```shell script
+go test ./...
 ```

@@ -1,10 +1,9 @@
 package customer
 
 import (
+	"encoding/json"
 	http2 "github.com/TStuchel/go-service/http"
 	"github.com/gorilla/mux"
-	"io/ioutil"
-	"log"
 	"net/http"
 )
 
@@ -49,7 +48,7 @@ func (impl controllerImpl) GetCustomer(w http.ResponseWriter, r *http.Request) {
 	customerId := vars["id"]
 
 	// Get the customer
-	customer, err := impl.service.GetCustomer(customerId) // TODO: Handle Error
+	customer, err := impl.service.GetCustomer(customerId)
 
 	// Error
 	if err != nil {
@@ -64,7 +63,7 @@ func (impl controllerImpl) GetCustomer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Translate
-	customerDTO := ToContract(customer)
+	customerDTO := ToContract(*customer)
 
 	// Good data, return JSON
 	http2.HandleSuccess(w, http.StatusOK, customerDTO)
@@ -73,10 +72,26 @@ func (impl controllerImpl) GetCustomer(w http.ResponseWriter, r *http.Request) {
 // CreateCustomer creates a new customer with the given data
 func (impl controllerImpl) CreateCustomer(w http.ResponseWriter, r *http.Request) {
 
-	body, err := ioutil.ReadAll(r.Body)
+	// Read the body
+	var customerDto CustomerDTO
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&customerDto)
 	if err != nil {
-		log.Fatal("Boom!")
+		http2.HandleBadRequest(w, err)
 	}
 
-	log.Printf("Got Request : %s", string(body))
+	// Translate
+	customer := ToEntity(customerDto)
+
+	// Create
+	newCustomer, err := impl.service.CreateCustomer(customer)
+	if err != nil {
+		http2.HandleBadRequest(w, err)
+	}
+
+	// Translate
+	customerDto = ToContract(*newCustomer)
+
+	// Good data, return JSON
+	http2.HandleSuccess(w, http.StatusCreated, customerDto)
 }
