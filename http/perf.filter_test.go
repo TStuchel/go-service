@@ -21,8 +21,8 @@ var _ = Describe("Performance Filter", func() {
 	// --
 	Describe("The performance filter should add a elapsed time header to the response", func() {
 		var (
-			writer           *testutils.MockHttpResponseWriter
-			request          *http.Request
+			writer  *testutils.MockHttpResponseWriter
+			request *http.Request
 		)
 
 		// GIVEN an HTTP request
@@ -40,6 +40,7 @@ var _ = Describe("Performance Filter", func() {
 			filteredHandler(writer, request)
 		})
 
+		// THEN
 		It("should keep any added headers", func() {
 			Expect(writer.Header().Get("SomeOtherHeader")).To(Equal("value"))
 		})

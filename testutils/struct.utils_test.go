@@ -1,8 +1,6 @@
 package testutils_test
 
 import (
-	"encoding/json"
-	"fmt"
 	. "github.com/TStuchel/go-service/testutils"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -61,8 +59,8 @@ var _ = Describe("TestStructUtils", func() {
 				Expect(testStruct.InnerProp.InnerIntProp1).ToNot(BeZero())
 			})
 			AfterEach(func() {
-				b, _ := json.Marshal(testStruct)
-				fmt.Println(string(b))
+				//b, _ := json.Marshal(testStruct)
+				//fmt.Println(string(b))
 			})
 		})
 	})

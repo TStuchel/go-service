@@ -47,6 +47,7 @@ var _ = Describe("JWT Filter", func() {
 			filteredHandler(writer, request)
 		})
 
+		// THEN
 		It("should not call the handler", func() {
 			Expect(wasHandlerCalled).To(BeFalse())
 		})
@@ -86,6 +87,7 @@ var _ = Describe("JWT Filter", func() {
 			filteredHandler(writer, request)
 		})
 
+		// THEN
 		It("should call the handler method", func() {
 			Expect(wasHandlerCalled).To(BeTrue())
 		})

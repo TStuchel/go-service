@@ -10,6 +10,7 @@ func ToContract(customer Customer) CustomerDTO {
 
 func ToEntity(customerDTO CustomerDTO) Customer {
 	return Customer{
+		ID:            customerDTO.Id,
 		FullName:      customerDTO.FullName,
 		StreetAddress: customerDTO.StreetAddress,
 	}

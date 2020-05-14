@@ -21,10 +21,10 @@ var seed = rand.New(
 func PopulateTestData(obj interface{}) {
 
 	// Get the concrete type
-	println("Address of object: ", obj)
-	println("Obj type : ", reflect.TypeOf(obj).String())
-	println("Obj type : ", reflect.TypeOf(obj).Kind().String())
-	println("Obj value : ", reflect.ValueOf(obj).Kind().String())
+	//println("Address of object: ", obj)
+	//println("Obj type : ", reflect.TypeOf(obj).String())
+	//println("Obj type : ", reflect.TypeOf(obj).Kind().String())
+	//println("Obj value : ", reflect.ValueOf(obj).Kind().String())
 
 	typ := reflect.TypeOf(obj).Elem()
 	val := reflect.ValueOf(obj).Elem()

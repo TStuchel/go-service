@@ -39,7 +39,7 @@ func HandleNotFound(w http.ResponseWriter) {
 
 // HandleBadRequest writes to the given ResponseWriter with an HTTP status of BAD_REQUEST and writes the given error
 // as a JSON string.
-func HandleBadRequest(w http.ResponseWriter, err error) {
+func HandleBadRequest(w http.ResponseWriter, url string, err error) {
 
 	// Respond with JSON
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -48,7 +48,12 @@ func HandleBadRequest(w http.ResponseWriter, err error) {
 	// Write the DTO
 	if err != nil {
 		enc := json.NewEncoder(w)
-		err = enc.Encode(err)
+		err = enc.Encode(common.ErrorDTO{
+			Url:        url,
+			StatusCode: http.StatusBadRequest,
+			Message:    err.Error(),
+			Type:       "BadRequestError",
+		})
 
 		// Very bad
 		if err != nil {
@@ -66,16 +71,18 @@ func HandleUnauthorizedError(w http.ResponseWriter, url string, err error) {
 	w.WriteHeader(http.StatusUnauthorized)
 
 	// Write the DTO
-	enc := json.NewEncoder(w)
-	err = enc.Encode(common.ErrorDTO{
-		Url:        url,
-		StatusCode: http.StatusUnauthorized,
-		Message:    err.Error(),
-		Type:       "UnauthorizedException",
-	})
-
-	// Very bad
 	if err != nil {
-		log.Print(err)
+		enc := json.NewEncoder(w)
+		err = enc.Encode(common.ErrorDTO{
+			Url:        url,
+			StatusCode: http.StatusUnauthorized,
+			Message:    err.Error(),
+			Type:       "UnauthorizedError",
+		})
+
+		// Very bad
+		if err != nil {
+			log.Print(err)
+		}
 	}
 }

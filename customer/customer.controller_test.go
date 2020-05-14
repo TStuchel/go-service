@@ -1,6 +1,7 @@
 package customer_test
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/TStuchel/go-service/common"
@@ -52,83 +53,189 @@ var _ = Describe("Customer Controller", func() {
 	})
 
 	// --
-	Describe("Find a customer by its ID", func() {
-		customerId := testutils.RandomInt(0, 99999)
-		var (
-			req *http.Request
-			w   *httptest.ResponseRecorder
-		)
-		BeforeEach(func() {
+	Context("GetCustomer", func() {
+
+		// --
+		Describe("Find a customer by its ID", func() {
+			var (
+				req        *http.Request
+				w          *httptest.ResponseRecorder
+				customerId int
+			)
+
 			// GIVEN a customer with a particular ID is in the system
-			service.GetCustomerReturns(&customer.Customer{ID: strconv.Itoa(customerId)}, nil)
+			BeforeEach(func() {
+				customerId = testutils.RandomInt(0, 99999)
+
+				// Mock
+				service.GetCustomerReturns(&customer.Customer{ID: strconv.Itoa(customerId)}, nil)
+			})
 
 			// WHEN the customer API endpoint is called
-			req, _ = http.NewRequest("GET", fmt.Sprintf("/v1/customers/%d", customerId), nil)
-			w = httptest.NewRecorder()
-			router.ServeHTTP(w, req)
+			JustBeforeEach(func() {
+				req, _ = http.NewRequest("GET", fmt.Sprintf("/v1/customers/%d", customerId), nil)
+				w = httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+			})
+
+			// THEN
+			It("should return an HTTP response code of 200", func() {
+				Expect(w.Code).To(Equal(http.StatusOK))
+			})
+			It("should contain the Customer in the response", func() {
+				customerDTO := new(customer.CustomerDTO)
+				_ = json.Unmarshal(w.Body.Bytes(), customerDTO)
+				Expect(customerDTO.Id).To(Equal(strconv.Itoa(customerId)))
+			})
 		})
-		It("should return an HTTP response code of 200", func() {
-			Expect(w.Code).To(Equal(http.StatusOK))
+
+		// --
+		Describe("Respond with NOT_FOUND given an unknown customer ID", func() {
+			var (
+				req        *http.Request
+				w          *httptest.ResponseRecorder
+				customerId int
+			)
+
+			// GIVEN an ID of a customer that is not in the system
+			BeforeEach(func() {
+				customerId = testutils.RandomInt(0, 99999)
+
+				// Mock
+				service.GetCustomerReturns(nil, nil)
+			})
+
+			// WHEN the customer API endpoint is called
+			JustBeforeEach(func() {
+				req, _ = http.NewRequest("GET", fmt.Sprintf("/v1/customers/%d", customerId), nil)
+				w = httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+			})
+
+			// THEN
+			It("should return an HTTP response status of NOT_FOUND", func() {
+				Expect(w.Code).To(Equal(http.StatusNotFound))
+			})
+			It("should return an empty error body", func() {
+				Expect(w.Body.String()).ToNot(BeNil())
+			})
 		})
-		It("should contain the Customer in the response", func() {
-			customerDTO := new(customer.CustomerDTO)
-			_ = json.Unmarshal(w.Body.Bytes(), customerDTO)
-			Expect(customerDTO.Id).To(Equal(strconv.Itoa(customerId)))
+
+		// --
+		Describe("Respond with BAD_REQUEST if given an invalid customer ID", func() {
+			var (
+				req        *http.Request
+				w          *httptest.ResponseRecorder
+				customerId int
+			)
+
+			// GIVEN an ID of a customer that is not in the system
+			BeforeEach(func() {
+				customerId = rand.Intn(101)
+				busError := common.NewBusinessError(fmt.Sprintf("Invalid customer ID [%d]", customerId))
+
+				// Mock
+				service.GetCustomerReturns(nil, busError)
+			})
+
+			// WHEN the customer API endpoint is called
+			JustBeforeEach(func() {
+				req, _ = http.NewRequest("GET", fmt.Sprintf("/v1/customers/%d", customerId), nil)
+				w = httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+			})
+
+			// THEN
+			It("should return a response HTTP status of BAD_REQUEST", func() {
+				Expect(w.Code).To(Equal(http.StatusBadRequest))
+			})
+			It("should return an an error body ", func() {
+				Expect(w.Body.String()).ToNot(BeNil())
+			})
+			It("should contain the error message", func() {
+				busError := new(common.BusinessError)
+				_ = json.Unmarshal(w.Body.Bytes(), busError)
+				Expect(busError.Data).To(Equal(fmt.Sprintf("Invalid customer ID [%d]", customerId)))
+			})
+
 		})
 	})
 
 	// --
-	Describe("Respond with NOT_FOUND given an unknown customer ID", func() {
-		var (
-			req *http.Request
-			w   *httptest.ResponseRecorder
-		)
-		BeforeEach(func() {
-			// GIVEN an ID of a customer that is not in the system
-			service.GetCustomerReturns(nil, nil)
-			customerId := testutils.RandomInt(0, 99999)
+	Context("CreateCustomer", func() {
 
-			// WHEN the customer API endpoint is called
-			req, _ = http.NewRequest("GET", fmt.Sprintf("/v1/customers/%d", customerId), nil)
-			w = httptest.NewRecorder()
-			router.ServeHTTP(w, req)
-		})
-		It("the response HTTP status should be NOT_FOUND", func() {
-			Expect(w.Code).To(Equal(http.StatusNotFound))
-		})
-		It("an error body should be empty", func() {
-			Expect(w.Body.String()).ToNot(BeNil())
-		})
-	})
+		// --
+		Describe("Calling the creation endpoint with a valid DTO should create the customer", func() {
+			var (
+				req         *http.Request
+				w           *httptest.ResponseRecorder
+				customerDto customer.CustomerDTO
+			)
 
-	// --
-	Describe("Respond with BAD_REQUEST if given an invalid customer ID", func() {
-		var (
-			req        *http.Request
-			w          *httptest.ResponseRecorder
-			customerId int
-		)
-		BeforeEach(func() {
-			// GIVEN an ID of a customer that is not in the system
-			customerId = rand.Intn(101)
-			busError := common.NewBusinessError(fmt.Sprintf("Invalid customer ID [%d]", customerId))
-			service.GetCustomerReturns(nil, busError)
+			// GIVEN the information for a new customer
+			BeforeEach(func() {
+				customerDto = customer.CustomerDTO{}
+				testutils.PopulateTestData(&customerDto)
 
-			// WHEN the customer API endpoint is called
-			req, _ = http.NewRequest("GET", fmt.Sprintf("/v1/customers/%d", customerId), nil)
-			w = httptest.NewRecorder()
-			router.ServeHTTP(w, req)
+				// Mock
+				customerEntity := customer.ToEntity(customerDto)
+				service.CreateCustomerReturns(&customerEntity, nil)
+			})
+
+			// WHEN the customer creation endpoint is called
+			JustBeforeEach(func() {
+				customerDto.Id = ""
+				jsonBytes, _ := json.Marshal(customerDto)
+				req, _ = http.NewRequest("POST", "/v1/customers", bytes.NewReader(jsonBytes))
+				w = httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+			})
+
+			// THEN
+			It("should return an HTTP status code of 201-Created", func() {
+				Expect(w.Code).To(Equal(http.StatusCreated))
+			})
+			It("should return the customer data in the body", func() {
+				createdCustomer := &customer.CustomerDTO{}
+				_ = json.Unmarshal(w.Body.Bytes(), &createdCustomer)
+
+				Expect(createdCustomer.Id).ToNot(BeEmpty())
+				Expect(createdCustomer.StreetAddress).To(Equal(customerDto.StreetAddress))
+				Expect(createdCustomer.FullName).To(Equal(customerDto.FullName))
+			})
 		})
-		It("the response HTTP status should be BAD_REQUEST", func() {
-			Expect(w.Code).To(Equal(http.StatusBadRequest))
+
+		// --
+		Describe("Calling the creation endpoint with an invalid DTO should return bad request", func() {
+			var (
+				req *http.Request
+				w   *httptest.ResponseRecorder
+			)
+
+			// GIVEN an invalid customer body
+			BeforeEach(func() {
+			})
+
+			// WHEN the customer creation endpoint is called
+			JustBeforeEach(func() {
+				req, _ = http.NewRequest("POST", "/v1/customers", bytes.NewReader([]byte("Not JSON")))
+				w = httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+			})
+
+			// THEN
+			It("should return an HTTP status code of 400-Bad Request", func() {
+				Expect(w.Code).To(Equal(http.StatusBadRequest))
+			})
+			It("should return an error body", func() {
+				errorDTO := common.ErrorDTO{}
+				_ = json.Unmarshal(w.Body.Bytes(), &errorDTO)
+				Expect(errorDTO.StatusCode).To(Equal(http.StatusBadRequest))
+				Expect(errorDTO.Url).To(Equal("/v1/customers"))
+				Expect(errorDTO.Message).To(Equal("invalid character 'N' looking for beginning of value"))
+				Expect(errorDTO.Type).To(Equal("BadRequestError"))
+			})
 		})
-		It("an error body should be returned", func() {
-			Expect(w.Body.String()).ToNot(BeNil())
-		})
-		It("should contain the error message", func() {
-			busError := new(common.BusinessError)
-			_ = json.Unmarshal(w.Body.Bytes(), busError)
-			Expect(busError.Data).To(Equal(fmt.Sprintf("Invalid customer ID [%d]", customerId)))
-		})
+
 	})
 })

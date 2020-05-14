@@ -102,7 +102,7 @@ var _ = Describe("Auth Controller", func() {
 			Expect(response.Url).To(Equal("/v1/token"))
 			Expect(response.StatusCode).To(Equal(http.StatusUnauthorized))
 			Expect(response.Message).To(Equal("invalid credentials"))
-			Expect(response.Type).To(Equal("UnauthorizedException"))
+			Expect(response.Type).To(Equal("UnauthorizedError"))
 		})
 	})
 
@@ -131,7 +131,7 @@ var _ = Describe("Auth Controller", func() {
 			Expect(response.Url).To(Equal("/v1/token"))
 			Expect(response.StatusCode).To(Equal(http.StatusUnauthorized))
 			Expect(response.Message).To(Equal("invalid credentials"))
-			Expect(response.Type).To(Equal("UnauthorizedException"))
+			Expect(response.Type).To(Equal("UnauthorizedError"))
 		})
 	})
 

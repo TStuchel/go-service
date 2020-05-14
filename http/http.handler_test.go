@@ -40,6 +40,7 @@ var _ = Describe("Http Handlers", func() {
 				HandleSuccess(&w, http.StatusAccepted, nil)
 			})
 
+			// THEN
 			It("should set the HTTP status", func() {
 				Expect(w.StatusCode).To(Equal(http.StatusAccepted))
 			})
@@ -72,6 +73,7 @@ var _ = Describe("Http Handlers", func() {
 				HandleSuccess(&w, http.StatusAccepted, body)
 			})
 
+			// THEN
 			It("should set the HTTP status", func() {
 				Expect(w.StatusCode).To(Equal(http.StatusAccepted))
 			})
@@ -104,6 +106,7 @@ var _ = Describe("Http Handlers", func() {
 				HandleNotFound(&w)
 			})
 
+			// THEN
 			It("should set the HTTP status", func() {
 				Expect(w.StatusCode).To(Equal(http.StatusNotFound))
 			})
@@ -129,18 +132,21 @@ var _ = Describe("Http Handlers", func() {
 
 			// WHEN the error is handled
 			JustBeforeEach(func() {
-				HandleBadRequest(&w, err)
+				HandleBadRequest(&w, "/endpoint", err)
 				errorDTO = &common.ErrorDTO{}
 				_ = json.Unmarshal(w.Bytes, errorDTO)
 			})
 
+			// THEN
 			It("should set the HTTP to 400-Bad request", func() {
 				Expect(w.StatusCode).To(Equal(http.StatusBadRequest))
 			})
 			It("should contain the expected error data", func() {
-				Expect(w.Bytes).ToNot(BeNil())
+				Expect(errorDTO.StatusCode).To(Equal(http.StatusBadRequest))
+				Expect(errorDTO.Url).To(Equal("/endpoint"))
+				Expect(errorDTO.Message).To(Equal("invalid data"))
+				Expect(errorDTO.Type).To(Equal("BadRequestError"))
 			})
-
 		})
 	})
 
@@ -163,19 +169,20 @@ var _ = Describe("Http Handlers", func() {
 
 			// WHEN the error is handled
 			JustBeforeEach(func() {
-				HandleUnauthorizedError(&w, "/v1/token", err)
+				HandleUnauthorizedError(&w, "/endpoint", err)
 				errorDTO = &common.ErrorDTO{}
 				_ = json.Unmarshal(w.Bytes, errorDTO)
 			})
 
+			// THEN
 			It("should set the HTTP to 401-Unauthorized", func() {
 				Expect(w.StatusCode).To(Equal(http.StatusUnauthorized))
 			})
 			It("should contain the expected error data", func() {
 				Expect(errorDTO.StatusCode).To(Equal(http.StatusUnauthorized))
-				Expect(errorDTO.Url).To(Equal("/v1/token"))
+				Expect(errorDTO.Url).To(Equal("/endpoint"))
 				Expect(errorDTO.Message).To(Equal("invalid credentials"))
-				Expect(errorDTO.Type).To(Equal("UnauthorizedException"))
+				Expect(errorDTO.Type).To(Equal("UnauthorizedError"))
 			})
 
 		})

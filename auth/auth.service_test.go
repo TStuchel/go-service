@@ -29,6 +29,7 @@ var _ = Describe("Auth Service", func() {
 				token    string
 				err      error
 			)
+
 			// GIVEN an invalid username and password
 			BeforeEach(func() {
 				username = testutils.RandomString(20)
@@ -40,6 +41,7 @@ var _ = Describe("Auth Service", func() {
 				token, err = service.Login(username, password)
 			})
 
+			// THEN
 			It("should return an empty token", func() {
 				Expect(token).To(BeEmpty())
 			})
@@ -56,6 +58,7 @@ var _ = Describe("Auth Service", func() {
 				token    string
 				err      error
 			)
+
 			// GIVEN an invalid username and password
 			BeforeEach(func() {
 				username = "admin"
@@ -67,6 +70,7 @@ var _ = Describe("Auth Service", func() {
 				token, err = service.Login(username, password)
 			})
 
+			// THEN
 			It("should return a JWT token", func() {
 				Expect(token).ToNot(BeEmpty())
 			})

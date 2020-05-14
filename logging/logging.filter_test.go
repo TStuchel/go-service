@@ -50,6 +50,7 @@ var _ = Describe("Logging Filter", func() {
 			filteredHandler(writer, request)
 		})
 
+		// THEN
 		It("should call the handler", func() {
 			Expect(wasHandlerCalled).To(BeTrue())
 		})

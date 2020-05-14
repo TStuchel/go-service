@@ -50,6 +50,7 @@ var _ = Describe("Http Filters", func() {
 			chain(nil, nil)
 		})
 
+		// THEN
 		It("should call the handler function", func() {
 			Expect(wasCalled).To(BeTrue())
 		})
@@ -96,6 +97,7 @@ var _ = Describe("Http Filters", func() {
 			chain(nil, nil)
 		})
 
+		// THEN
 		It("should call the chain of functions in the correct order", func() {
 			for i := 0; i < filterCount; i++ {
 				Expect(callIndex[i]).To(Equal(i))

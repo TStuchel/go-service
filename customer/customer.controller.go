@@ -52,7 +52,7 @@ func (impl controllerImpl) GetCustomer(w http.ResponseWriter, r *http.Request) {
 
 	// Error
 	if err != nil {
-		http2.HandleBadRequest(w, err)
+		http2.HandleBadRequest(w, r.URL.Path, err)
 		return
 	}
 
@@ -77,7 +77,8 @@ func (impl controllerImpl) CreateCustomer(w http.ResponseWriter, r *http.Request
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&customerDto)
 	if err != nil {
-		http2.HandleBadRequest(w, err)
+		http2.HandleBadRequest(w, r.URL.Path, err)
+		return
 	}
 
 	// Translate
@@ -86,7 +87,8 @@ func (impl controllerImpl) CreateCustomer(w http.ResponseWriter, r *http.Request
 	// Create
 	newCustomer, err := impl.service.CreateCustomer(customer)
 	if err != nil {
-		http2.HandleBadRequest(w, err)
+		http2.HandleBadRequest(w, r.URL.Path, err)
+		return
 	}
 
 	// Translate
