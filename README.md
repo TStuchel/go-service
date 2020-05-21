@@ -60,7 +60,7 @@ It's worth noting that this image copies the source code into the image and buil
 ### Running
 This service can be launched as part of a Docker Compose configuration. This can be run via the Docker command:
 ```shell script
-docker-compose -f stack.yml up
+docker-compose up
 ```
 This Docker Compose configuration will run 3 separate containers.
 -   Mongo DB
