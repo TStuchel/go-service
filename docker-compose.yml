@@ -25,6 +25,7 @@ services:
 
   # Go application service
   go-service:
+    build: .
     image: tstuchel/go-service
     restart: always
     ports:

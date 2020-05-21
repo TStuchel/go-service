@@ -1,17 +1,17 @@
 # The base go-image
-FROM golang:latest
+FROM golang:alpine
 
-# Create a directory for the app
-RUN mkdir /build
-
-# Copy all files from the current directory to the app directory
-COPY . /build
-
-# Set working directory
+# Copy all of the build files into a /build directory
 WORKDIR /build
+COPY ./ ./
 
 # Build
 RUN go build ./cmd/go-service
+
+# Copy executable / cleanup build
+WORKDIR ../app
+RUN mv ../build/go-service go-service \
+    && rm -R ../build
 
 # Run
 ENTRYPOINT ["./go-service"]
