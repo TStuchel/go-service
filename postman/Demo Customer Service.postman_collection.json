@@ -1,0 +1,268 @@
+{
+	"info": {
+		"_postman_id": "e8322cba-1a15-4a18-98f7-38d202ea52cb",
+		"name": "Demo Customer Service",
+		"description": "This set of integration tests validates the demo Customer service that has been implemented across a variety of technologies.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "14c8a54a-9394-4b33-b5c6-4a3a8280c79c",
+						"exec": [
+							"// Tests",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test(\"Body is correct\", function () {",
+							"    pm.response.to.have.body(\"Service available\");",
+							"});",
+							"pm.test(\"Header X-Elapsed is present\", function () {",
+							"    pm.response.to.have.header(\"X-Elapsed\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8090/health",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"health"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "aa7dd908-0fa3-4d14-88d0-306db7195008",
+						"exec": [
+							"// Basic Tests",
+							"pm.test(\"The HTTP status code should return 200-OK\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test(\"There should be a respone\", function () {",
+							"    pm.expect(pm.response.text()).to.not.be.empty",
+							"});",
+							"if (!pm.response.text()) return;",
+							"",
+							"// Content tests",
+							"var jsonData = pm.response.json();",
+							"pm.test(\"The JWT token should be in the response\", function () {",
+							"    pm.expect(jsonData.token).to.not.be.undefined",
+							"});",
+							"",
+							"// Post Test",
+							"pm.globals.set(\"token\", jsonData.token);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "admin",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8090/v1/token",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"v1",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Customer",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b78ce809-1ee9-403b-9bb6-b92fb69b7184",
+						"exec": [
+							"// Basic Tests",
+							"pm.test(\"The HTTP status code should return 201-CREATED\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"pm.test(\"There should be a respone\", function () {",
+							"    pm.expect(pm.response.text()).to.not.be.empty",
+							"});",
+							"if (!pm.response.text()) return;",
+							"",
+							"// Content tests",
+							"var jsonData = pm.response.json();",
+							"",
+							"// Post Test",
+							"pm.globals.set(\"customerId\", jsonData.customerId);",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"streetAddress\" : \"3456 Hello\",\n\t\"fullName\" : \"John Boy\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8090/v1/customers",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"v1",
+						"customers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Customer",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5c897e3b-4030-40b7-afdb-ff692b4ddaef",
+						"exec": [
+							"// Basic Tests",
+							"pm.test(\"The HTTP status code should return 200-OK\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test(\"There should be a respone\", function () {",
+							"    pm.expect(pm.response.text()).to.not.be.empty;",
+							"});",
+							"if (!pm.response.text()) return;",
+							"",
+							"// Content tests",
+							"var jsonData = pm.response.json();",
+							"pm.test(\"The customer ID should be in the response\", function () {",
+							"    pm.expect(jsonData.id).to.equal(pm.globals.get(\"customerId\"));",
+							"});",
+							"pm.test(\"The customer street name should be in the response\", function() {",
+							"    pm.expect(jsonData.streetName).to.not.be.undefined;",
+							"})",
+							"pm.test(\"The customer full name should be in the response\", function() {",
+							"    pm.expect(jsonData.fullName).to.not.be.undefined;",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8090/v1/customers/{{customerId}}",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"v1",
+						"customers",
+						"{{customerId}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "b671f277-872a-4fb8-9dac-f4f53ea14a9b",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "cc76f80e-44b6-4e98-ba65-20f16120b8c2",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"protocolProfileBehavior": {}
+}
