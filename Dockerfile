@@ -11,7 +11,8 @@ RUN go build ./cmd/go-service
 # Copy executable / cleanup build
 WORKDIR ../app
 RUN mv ../build/go-service go-service \
-    && rm -R ../build
+    && rm -R ../build \
+    && go clean -cache -modcache -i -r
 
 # Run
 ENTRYPOINT ["./go-service"]
